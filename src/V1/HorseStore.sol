@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity 0.8.24;
+pragma solidity 0.8.20;
 
 contract HorseStore {
     uint256 s_numberOfHorses;
@@ -9,7 +8,7 @@ contract HorseStore {
         s_numberOfHorses = newHorseNumber;
     }
 
-    function getHorseNumber() public view returns (uint256) {
+    function readNumberOfHorses() external view returns (uint256) {
         return s_numberOfHorses;
     }
 }
