@@ -1,6 +1,6 @@
 
 /* Interface */
-#define function updateNumberOfHorses(uint256) nonpayable returns()
+#define function updateHorseNumber(uint256) nonpayable returns()
 #define function readNumberOfHorses() view returns(uint256)
 #define constant NUMBER_OF_HORSES_STORAGE_SLOT = FREE_STORAGE_POINTER() // 0 
 
@@ -8,7 +8,7 @@
     0x00 calldataload 0xe0 shr   // [function_selector]
 
     // updateNumberOfHorses
-    dup1 __FUNC_SIG(updateNumberOfHorses) eq updateJump jumpi    // [function_selector]
+    dup1 __FUNC_SIG(updateHorseNumber) eq updateJump jumpi    // [function_selector]
     
     // getNumberOfHorses
     __FUNC_SIG(readNumberOfHorses) eq readJump jumpi    // []
