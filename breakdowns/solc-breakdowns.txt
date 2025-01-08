@@ -9,7 +9,7 @@
 // Free Memory Pointer
 PUSH1 0x80  // [0x80]
 PUSH1 0x40  // [0x40, 0x80]
-MSTORE      //
+MSTORE      // []
 
 // What does this chunk do?
 // If someone sent value with this call revert!
@@ -36,26 +36,38 @@ PUSH0       // [0x00, 0xa5]
 RETURN      // []
 INVALID     // []
 
-//
+// 2. Runtime Code
+// Entry point of all calls
+// free memory pointer
 PUSH1 0x80
 PUSH1 0x40
 MSTORE
-CALLVALUE
-DUP1
-ISZERO
-PUSH1 0x0e
-JUMPI
-PUSH0
-DUP1
-REVERT
-JUMPDEST
-POP
-PUSH1 0x04
-CALLDATASIZE
-LT
-PUSH1 0x30
-JUMPI
-PUSH0
+
+// Checking for msg.value, and if given, reverting
+CALLVALUE       // [msg.value]
+DUP1            // [msg.value, msg.value]
+ISZERO          // [msg.value == 0, msg.value]
+PUSH1 0x0e      // [0x0e, msg.value == 0, msg.value]
+JUMPI           // [msg.value]
+// Jump to "continue" if msg.value == 0
+
+PUSH0           // [0x00, msg.value]
+DUP1            // [0x00, 0x00, msg.value]
+REVERT          // [msg.value]
+
+// If msg.value == 0, start here!
+// continue
+// This is checking to see if there is enough calldata for a function selector
+JUMPDEST        // [msg.value]
+POP             // []
+PUSH1 0x04      // [0x04]
+CALLDATASIZE    // [calldata_size, 0x04]
+LT              // [calldata_size < 0x04]
+PUSH1 0x30      // [0x30, calldata_size < 0x04]
+JUMPI           // []
+// Jump to "calldata_jump" if calldata_size is less than 0x04
+
+PUSH0           
 CALLDATALOAD
 PUSH1 0xe0
 SHR
@@ -69,10 +81,15 @@ PUSH4 0xe026c017
 EQ
 PUSH1 0x45
 JUMPI
-JUMPDEST
-PUSH0
-DUP1
-REVERT
+
+// calldata_jump
+// Revert Jumpdest
+JUMPDEST        // []
+PUSH0           // [0x00]
+DUP1            // [0x00, 0x00]
+REVERT          // []
+
+
 JUMPDEST
 PUSH1 0x43
 PUSH1 0x3f
