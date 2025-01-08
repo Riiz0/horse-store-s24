@@ -1,19 +1,18 @@
+
+/* Interface */
+#define function updateNumberOfHorses(uint256) nonpayable returns()
+#define function readNumberOfHorses() view returns(uint256)
+
 #define macro MAIN() = takes(0) returns(0) {
-    0x00    // [0]
-    //0x02    // TOP [2, 0] BOTTOM
-    calldataload    // [calldata]
-    0xe0   // [0xe0, calldata (32)]
-    shr   // [function_selector]
-    dup1    // [function_selector, function_selector]
-    0xcdfead2e  // [0xcdfead2e, function_selector, function_selector]
-    eq   // [true_if_func_selector_matches, function_selector]
-    updateJump    // [updateHourseNumberProgramCounter, true/false]
-    jumpi    // [function_selector]
-    0xe026c017  // [0xe026c017, function_selector]
-    eq   // [true_if_func_selector_matches]
-    readJump    // [readJump, true_if_func_selector_matches]
-    jumpi    // []
-    0x00 0x00 revert  // []
+    0x00 calldataload 0xe0 shr   // [function_selector]
+
+    // updateNumberOfHorses
+    dup1 __FUNC_SIG(updateNumberOfHorses) eq updateJump jumpi    // [function_selector]
+    
+    // getNumberOfHorses
+    __FUNC_SIG(readNumberOfHorses) eq readJump jumpi    // []
+    
+    0x00 0x00 revert
 
     updateJump:
     SET_NUMBER_OF_HORSES()  // [0xcdfead2e]
