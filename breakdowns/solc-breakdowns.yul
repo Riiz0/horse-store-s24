@@ -7,7 +7,7 @@
 
 // 1. Contract Creation Code
 // Free Memory Pointer
-PUSH1 0x80  // [0x80]
+PUSH1 0x80 // [0x80]
 PUSH1 0x40  // [0x40, 0x80]
 MSTORE      // Memory[0x40: 0x80]
 
