@@ -96,15 +96,16 @@ PUSH0           // [0x00]
 DUP1            // [0x00, 0x00]
 REVERT          // []
 
+// updateHorseNumber jump dest 1
+JUMPDEST        // [function_selector]
+PUSH1 0x43      // [0x43, function_selector]
+PUSH1 0x3f      // [0x3f, 0x43, function_selector]
+CALLDATASIZE    // [calldata_size, 0x3f, 0x43, function_selector]  
+PUSH1 0x04      // [0x04, calldata_size, 0x3f, 0x43, function_selector]
+PUSH1 0x59      // [0x59, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+JUMP            // [0x04, calldata_size, 0x3f, 0x43, function_selector]
 
-JUMPDEST
-PUSH1 0x43
-PUSH1 0x3f
-CALLDATASIZE
-PUSH1 0x04
-PUSH1 0x59
-JUMP
-JUMPDEST
+JUMPDEST        // []
 PUSH0
 SSTORE
 JUMP
@@ -127,6 +128,8 @@ SWAP2
 SUB
 SWAP1
 RETURN
+
+// updateHorseNumber jump dest 2
 JUMPDEST
 PUSH0
 PUSH1 0x20
