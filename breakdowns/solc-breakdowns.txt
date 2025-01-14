@@ -67,20 +67,27 @@ PUSH1 0x30      // [0x30, calldata_size < 0x04]
 JUMPI           // []
 // Jump to "calldata_jump" if calldata_size is less than 0x04
 
-PUSH0           
-CALLDATALOAD
-PUSH1 0xe0
-SHR
-DUP1
-PUSH4 0xcdfead2e
-EQ
-PUSH1 0x34
-JUMPI
-DUP1
-PUSH4 0xe026c017
-EQ
-PUSH1 0x45
-JUMPI
+// Function dispatching in solidity
+PUSH0           // [0]
+CALLDATALOAD    // [32bytes of calldata]
+PUSH1 0xe0      // [0xe0, 32bytes of calldata]
+SHR             // [calldata[0:4]] // function_selector
+
+// Function dispatching for setNumberOfHorses
+DUP1            // [function_selector, function_selector]
+PUSH4 0xcdfead2e    // [0xcdfead2e, function_selector, function_selector]
+EQ              // [function_selector == 0xcdfead2e, function_selector]
+PUSH1 0x34      // [0x34, function_selector == 0xcdfead2e, function_selector]
+JUMPI           // [function_selector]
+// if function_selector == 0xcdfead2e -> set_number_of_horses
+
+// Function dispatching for readNumberOfHorses
+DUP1            // [function_selector, function_selector]
+PUSH4 0xe026c017    // [0xe026c017, function_selector, function_selector]
+EQ              // [function_selector == 0xe026c017, function_selector]
+PUSH1 0x45      // [0x45, function_selector == 0xe026c017, function_selector]
+JUMPI           // [function_selector]
+// if function_selector == 0xe026c017 -> read_number_of_horses
 
 // calldata_jump
 // Revert Jumpdest
