@@ -105,8 +105,8 @@ PUSH1 0x04      // [0x04, calldata_size, 0x3f, 0x43, function_selector]
 PUSH1 0x59      // [0x59, 0x04, calldata_size, 0x3f, 0x43, function_selector]
 JUMP            // [0x04, calldata_size, 0x3f, 0x43, function_selector]
 
-JUMPDEST        // []
-PUSH0
+JUMPDEST        
+PUSH0           
 SSTORE
 JUMP
 JUMPDEST
@@ -130,19 +130,27 @@ SWAP1
 RETURN
 
 // updateHorseNumber jump dest 2
-JUMPDEST
-PUSH0
-PUSH1 0x20
-DUP3
-DUP5
-SUB
-SLT
-ISZERO
-PUSH1 0x68
-JUMPI
-PUSH0
-DUP1
-REVERT
+// Check to see if there is a value to update the horse number to 
+// 4 bytes for function selector, 32 bytes for horse number
+JUMPDEST    // [0x04, calldata_size, 0x3f, 0x43, function_selector]
+PUSH0       // [0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+PUSH1 0x20  // [0x20, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+DUP3        // [0x04, 0x20, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+DUP5        // [calldata_size, 0x04, 0x20, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+SUB         // [calldata_size - 0x04, 0x20, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+// is there more calldata than just the function selector?
+SLT         // [calldata_size - 0x04 < 0x20, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+ISZERO      // [calldata_size - 0x04 < 0x20 == true, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+PUSH1 0x68  // [0x68, calldata_size - 0x04 < 0x20 == true, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+JUMPI       // [0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+// We are going to jump to Jump dest 3 if there is more calldata than: function selector + 0x20
+
+// Revert if there isn't enough calldata!
+PUSH0       // [0, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+DUP1        // [0, 0, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+REVERT      // [0, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+
+//
 JUMPDEST
 POP
 CALLDATALOAD
