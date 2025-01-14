@@ -9,7 +9,7 @@
 // Free Memory Pointer
 PUSH1 0x80  // [0x80]
 PUSH1 0x40  // [0x40, 0x80]
-MSTORE      // []
+MSTORE      // Memory[0x40: 0x80]
 
 // What does this chunk do?
 // If someone sent value with this call revert!
@@ -122,24 +122,25 @@ JUMP            // [function_selector]
 JUMPDEST        // [function_selector]
 STOP            // [function_selector]
 
-
-JUMPDEST
-PUSH0
-SLOAD
-PUSH1 0x40
-MLOAD
-SWAP1
-DUP2
-MSTORE
-PUSH1 0x20
-ADD
-PUSH1 0x40
-MLOAD
-DUP1
-SWAP2
-SUB
-SWAP1
-RETURN
+// readNumberOfHorses jump dest 1
+JUMPDEST        // [function_selector]
+PUSH0           // [0, function_selector]
+SLOAD           // [numHorses, function_selector]
+PUSH1 0x40      // [0x40, numHorses, function_selector]
+MLOAD           // [0x80, numHorses, function_selector] // Memory [0x40: 0x80] (free memory pointer)
+SWAP1           // [numHorses, 0x80, function_selector]
+DUP2            // [0x80, numHorses, 0x80, function_selector]
+MSTORE          // [0x80, function_selector]    Memory: 0x80: numHorses
+PUSH1 0x20      // [0x20, 0x80, function_selector]
+ADD             // [0x20 + 0x80, function_selector]
+PUSH1 0x40      // [0x40, 0x20 + 0x80, function_selector]
+MLOAD           // [0x80, 0x20 + 0x80, function_selector]
+DUP1            // [0x80, 0x80, 0x20 + 0x80, function_selector]
+SWAP2           // [0x20 + 0x80, 0x80, 0x80, function_selector]
+SUB             // [(0x20 + 0x80) - 0x80, 0x80, function_selector]
+SWAP1           // [0x80, (0x20 + 0x80) - 0x80, function_selector]
+// Return a value of size 32 bytes, thats located at position 0x80 in memory
+RETURN          // [function_selector]
 
 // updateHorseNumber jump dest 2
 // Check to see if there is a value to update the horse number to 
