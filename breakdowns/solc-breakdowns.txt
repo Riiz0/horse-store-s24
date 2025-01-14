@@ -97,6 +97,7 @@ DUP1            // [0x00, 0x00]
 REVERT          // []
 
 // updateHorseNumber jump dest 1
+// Setup jumping program counters in the stack
 JUMPDEST        // [function_selector]
 PUSH1 0x43      // [0x43, function_selector]
 PUSH1 0x3f      // [0x3f, 0x43, function_selector]
@@ -105,12 +106,23 @@ PUSH1 0x04      // [0x04, calldata_size, 0x3f, 0x43, function_selector]
 PUSH1 0x59      // [0x59, 0x04, calldata_size, 0x3f, 0x43, function_selector]
 JUMP            // [0x04, calldata_size, 0x3f, 0x43, function_selector]
 
-JUMPDEST        
-PUSH0           
-SSTORE
-JUMP
-JUMPDEST
-STOP
+// Jump dest 4
+// We ca finally run an sstore to save our value to storage:
+// 1. Function dispatching
+// 2. Checked for msg.value
+// 3. Checked that calldata is long enough
+// 4. Received the number to use from the calldata
+JUMPDEST        // [calldata(of numberToUpdate), 0x43, function_selector]
+PUSH0           // [0, calldata(of numberToUpdate), 0x43, function_selector]
+SSTORE          // [0x43, function_selector]
+JUMP            // [function_selector]
+// Jump des5 5
+
+// Jump dest 5
+JUMPDEST        // [function_selector]
+STOP            // [function_selector]
+
+
 JUMPDEST
 PUSH0
 SLOAD
@@ -148,16 +160,19 @@ JUMPI       // [0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
 // Revert if there isn't enough calldata!
 PUSH0       // [0, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
 DUP1        // [0, 0, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
-REVERT      // [0, 0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+REVERT      // [0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
 
-//
-JUMPDEST
-POP
-CALLDATALOAD
-SWAP2
-SWAP1
-POP
-JUMP
+// updateHorseNumber jump dest 3 
+// Grab the calldata for updating the horse number and delete some stuff in the stack
+JUMPDEST    // [0, 0x04, calldata_size, 0x3f, 0x43, function_selector]
+POP         // [0x04, calldata_size, 0x3f, 0x43, function_selector]
+CALLDATALOAD    // [calldata( of numberToUpdate), calldata_size, 0x3f, 0x43, function_selector]
+SWAP2       // [0x3f, calldata_size, calldata( of numberToUpdate), 0x43, function_selector]
+SWAP1       // [calldata_size, 0x3f, calldata( of numberToUpdate), 0x43, function_selector]
+POP         // [0x3f, calldata(of numberToUpdate), 0x3f, 0x43, function_selector]
+JUMP        //  [calldata(of numberToUpdate), 0x3f, 0x43, function_selector]
+// jump to jump dest 4
+
 INVALID
 LOG2
 PUSH5 0x6970667358
