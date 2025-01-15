@@ -29,7 +29,7 @@
     IS_HAPPY_HORSE()
 
     horseIdToFedTimeStamp:
-    HORSE_ID_TO_FED_TIMESTAMP()
+    GET_HORSE_FED_TIMESTAMP()
 
     horseHappyIfFedWithin:
     HORSE_HAPPY_IF_FED_WITHIN()
@@ -49,6 +49,12 @@
 
 #define macro IS_HAPPY_HORSE() = takes(0) returns(0){}
 
-#define macro HORSE_ID_TO_FED_TIMESTAMP() = takes(0) returns(0){}
+#define macro GET_HORSE_FED_TIMESTAMP() = takes(0) returns(0){
+    0x04 calldataload           // [horseId]
+    [HORSE_FED_TIMESTAMP_LOCATION] // [HORSE_FED_TIMESTAMP_LOCATION, horseId]
+    LOAD_ELEMENT_FROM_KEYS(0x00)   // [horseFedTimestamp]
+    0x00 mstore                // []    // Memory: [0x00: horseFedTimestamp]
+    0x20 0x00 return           // []
+}
 
 #define macro HORSE_HAPPY_IF_FED_WITHIN() = takes(0) returns(0){}
