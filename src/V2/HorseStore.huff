@@ -9,6 +9,7 @@
 #define function HORSE_HAPPY_IF_FED_WITHIN() view returns(uint256)
 
 #define constant HORSE_FED_TIMESTAMP_LOCATION = FREE_STORAGE_POINTER() // storage slot for the mapping
+#define constant HORSE_HAPPY_IF_FED_WITHIN_CONSTANT = 0x0000000000000000000000000000000000000000000000000000000000015180 //1 days
 
 #define macro MAIN() = takes(0) returns(0){
     0x00 calldataload 0xe0 shr      // [function_selector]
@@ -47,7 +48,27 @@
     stop
 }
 
-#define macro IS_HAPPY_HORSE() = takes(0) returns(0){}
+#define macro IS_HAPPY_HORSE() = takes(0) returns(0){
+    0x04 calldataload           // [horseId]
+    [HORSE_FED_TIMESTAMP_LOCATION] // [HORSE_FED_TIMESTAMP_LOCATION, horseId]
+    LOAD_ELEMENT_FROM_KEYS(0x00)   // [horseFedTimestamp]
+    timestamp                   // [timestamp, horseFedTimestamp]
+    dup2 dup2                   // [timestamp, horseFedTimestamp, timestamp, horseFedTimestamp]
+    sub                        // [timestamp - horseFedTimestamp, timestamp, horseFedTimestamp]
+    [HORSE_HAPPY_IF_FED_WITHIN_CONSTANT] // [HORSE_HAPPY_IF_FED_WITHIN_CONSTANT, timestamp - horseFedTimestamp, timestamp, horseFedTimestamp]
+    gt                        // [horse_has_been_fed_within_1_day, timestamp, horseFedTimestamp]
+    start_return_true jumpi   // [timestamp, horseFedTimestamp]
+    eq                         // [timestamp == horseFedTimestamp]
+    start_return
+    jump
+
+    start_return_true:
+    0x01                    // [0x01, timestamp, horseFedTimestamp]
+
+    start_return:
+    0x00 mstore                // []    // Memory: [0x00: 0x01]
+    0x20 0x00 return           // []
+}
 
 #define macro GET_HORSE_FED_TIMESTAMP() = takes(0) returns(0){
     0x04 calldataload           // [horseId]
